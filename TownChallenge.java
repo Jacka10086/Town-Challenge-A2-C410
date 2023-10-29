@@ -1,55 +1,46 @@
-package TownChallenge;
-
 import java.util.Random;
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileWriter;
 
 public class TownChallenge {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
-        // 初始化一个城镇名字的数组
-        String[] towns = {"Coleraine", "Belfast", "Banbridge", "Ballymoney",
-                          "Newry", "Enniskillen", "Portadown", "Bangor"};
-
-        // 创建随机数对象
+        String[] towns = new String[8];
         Random random = new Random();
-        
-        // 初始化主队和客队的得分为0
-        int homeScore, awayScore;
-        
-        // 初始化主队胜、平、客队胜的次数为0
-        int homes = 0, draws = 0, aways = 0;
-        
-        // 创建从键盘读取输入的Scanner对象
         Scanner keyboard = new Scanner(System.in);
+        File fileIn = new File("src/towns.txt");
+        Scanner fileInput = new Scanner(fileIn);
+        FileWriter fileOut = new FileWriter("src/results.txt", true);
+        int homeScore, awayScore, numSetsOfResults;
+        int homes = 0, draws = 0, aways = 0;
+        int thisTown = 0;
 
-        // 循环让用户输入前四个城镇的名字
-        for(int i = 0; i < 4; i++) {
-            System.out.printf("Enter town %d > ", i+1);
-            towns[i] = keyboard.nextLine();
+        while (fileInput.hasNextLine()) {
+            towns[thisTown] = fileInput.nextLine();
+            thisTown = thisTown + 1;
         }
 
-        // 为主队和客队分别生成0-9之间的随机得分
-        homeScore = random.nextInt(10);
-        awayScore = random.nextInt(10);
-        
-        // 从前四个城镇中随机选择一个城镇
-        int i = random.nextInt(4);
-        
-        // 打印选定的两个城镇及其得分
-        System.out.printf("%s %d %s %d \n", towns[i*2], homeScore, towns[i*2 + 1], awayScore);
-        
-        // 根据得分判断比赛结果，并更新胜、平、负的次数
-        if(homeScore > awayScore) {
-            homes++;
-        } else if(homeScore == awayScore) {
-            draws++;
-        } else {
-            aways++;
-        }
+        System.out.print("How many sets of results would you like to generate? > ");
+        numSetsOfResults = keyboard.nextInt();
 
-        // 打印主队胜、平、客队胜的次数
-        System.out.printf("Homes %d, Draws %d, Aways %d \n", homes, draws, aways);
+        for (int resultSet = 0; resultSet < numSetsOfResults; resultSet++) {
+
+            for (int i = 0; i <= 3; i++) {
+                homeScore = random.nextInt(10);
+                awayScore = random.nextInt(10);
+                System.out.printf("%-12s %3d    %-12s %3d\n", towns[i * 2], homeScore, towns[i * 2 + 1], awayScore);
+                fileOut.write(towns[i*2] +" " + homeScore + " " + towns[i*2 + 1] + " " + awayScore + "\n");
+                if (homeScore > awayScore) homes++;
+                if (awayScore > homeScore) aways++;
+                if (homeScore == awayScore) draws++;
+            }
+            System.out.printf("Homes %d, Draws %d, Aways %d \n\n", homes, draws, aways);
+            fileOut.write("Homes " + homes + ", Draws " + draws + ", Aways " + aways + "\n\n");
+
+        }
+        fileOut.close();
     }
-}
 
+}
